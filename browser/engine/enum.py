@@ -5,7 +5,7 @@ class BrowserType(str, Enum):
     CLOAK="cloak"
  
 
-class SessionMode(str, Enum):
+class UserMode(str, Enum):
     NEW_BROWSER = "new_browser"
     REUSE = "reuse"
     PROFILE = "profile"

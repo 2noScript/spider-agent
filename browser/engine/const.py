@@ -6,8 +6,17 @@ ALLOWED_URL_SCHEMES = ["http:", "https:"]
 
 # Interactive roles to include - exclude combobox to avoid opening complex widgets
 INTERACTIVE_ROLES = [
-    "button", "link", "textbox", "checkbox", "radio",
-    "menuitem", "tab", "searchbox", "slider", "spinbutton", "switch"
+    "button",
+    "link",
+    "textbox",
+    "checkbox",
+    "radio",
+    "menuitem",
+    "tab",
+    "searchbox",
+    "slider",
+    "spinbutton",
+    "switch",
     # "combobox" excluded
 ]
 
@@ -19,6 +28,11 @@ SKIP_PATTERNS = [
     re.compile(r"datepicker", re.I),
 ]
 
-BROWSER_IDLE_TIMEOUT_MS=300000
+BROWSER_IDLE_TIMEOUT_MS = 300000
 
-SUPPORT_BROWSER=[BrowserType.CAMOUFOX]
+SUPPORT_BROWSER = [BrowserType.CAMOUFOX]
+
+PROFILES_PATH = {
+    [BrowserType.CAMOUFOX]: f"profile/{BrowserType.CAMOUFOX}",
+    [BrowserType.CLOAK]: f"profile/{BrowserType.CLOAK}",
+}
