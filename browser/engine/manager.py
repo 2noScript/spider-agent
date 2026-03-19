@@ -1,77 +1,25 @@
-from pydantic import BaseModel, Field
-from typing import Any, Dict, Set, List, Optional
-from enum import Enum
+from typing import Any, Dict, Optional
 import threading
 import time
-
-# Multi-browser support
 from playwright.sync_api import sync_playwright
+from browser.engine.enum import SessionMode, BrowserType
+from browser.engine.models import UserSessionModel
+from camoufox.sync_api import Camoufox
 
-from browser.engine.enum import SessionMode,BrowserType
 
-# Camoufox support
-try:
-    from camoufox.sync_api import Camoufox
-except ImportError:
-    Camoufox = None
-
-# ------------------------------
-# ENUMS
-# ------------------------------
-
-# ------------------------------
-# TAB STATE MODEL
-# ------------------------------
-class TabState(BaseModel):
-    page: Any
-    refs: Dict[str, dict] = Field(default_factory=dict)
-    visited_urls: Set[str] = Field(default_factory=set)
-    downloads: List[dict] = Field(default_factory=list)
-    tool_calls: int = 0
-
-    class Config:
-        arbitrary_types_allowed = True
-
-# ------------------------------
-# USER SESSION MODEL
-# ------------------------------
-class UserSession(BaseModel):
-    context: Any
-    tab_groups: Dict[str, Dict[str, TabState]] = Field(default_factory=dict)
-    last_access: float = Field(default_factory=lambda: time.time())
-    _lock: threading.Lock = Field(default_factory=threading.Lock, exclude=True)
-
-    class Config:
-        arbitrary_types_allowed = True
-
-    def touch(self):
-        self.last_access = time.time()
-
-    def add_tab(self, session_key: str, tab_id: str, page: Any):
-        with self._lock:
-            if session_key not in self.tab_groups:
-                self.tab_groups[session_key] = {}
-            self.tab_groups[session_key][tab_id] = TabState(page=page)
-
-    def get_tab(self, session_key: str, tab_id: str) -> Optional[TabState]:
-        return self.tab_groups.get(session_key, {}).get(tab_id)
-
-# ------------------------------
-# SESSION STORE
-# ------------------------------
 class SessionStore:
     def __init__(self, session_timeout: int = 3600):
-        self.users: Dict[str, UserSession] = {}
+        self.users: Dict[str, UserSessionModel] = {}
         self.lock = threading.Lock()
         self.session_timeout = session_timeout
 
-    def create_user(self, user_id: str, context: Any) -> UserSession:
+    def create_user(self, user_id: str, context: Any) -> UserSessionModel:
         with self.lock:
-            session = UserSession(context=context)
+            session = UserSessionModel(context=context)
             self.users[user_id] = session
             return session
 
-    def get_user(self, user_id: str) -> Optional[UserSession]:
+    def get_user(self, user_id: str) -> Optional[UserSessionModel]:
         session = self.users.get(user_id)
         if session:
             session.touch()
@@ -80,8 +28,11 @@ class SessionStore:
     def cleanup(self):
         now = time.time()
         with self.lock:
-            to_remove = [uid for uid, session in self.users.items()
-                         if now - session.last_access > self.session_timeout]
+            to_remove = [
+                uid
+                for uid, session in self.users.items()
+                if now - session.last_access > self.session_timeout
+            ]
             for uid in to_remove:
                 sess = self.users.pop(uid)
                 try:
@@ -92,32 +43,32 @@ class SessionStore:
                 except Exception:
                     pass
 
-# ------------------------------
-# BROWSER MANAGER
-# ------------------------------
+
 class BrowserManager:
     def __init__(self):
         self.playwright = sync_playwright().start()
-        self.browser_pool: Dict[tuple, Any] = {}  # (browser_type, proxy) -> browser_instance
+        self.browser_pool: Dict[tuple, Any] = (
+            {}
+        )  # (browser_type, proxy) -> browser_instance
         self.lock = threading.Lock()
 
     def _launch_browser(self, browser_type: BrowserType, proxy: Optional[str] = None):
         proxy_config = {"server": proxy} if proxy else None
-        if browser_type == BrowserType.CHROMIUM:
-            return self.playwright.chromium.launch(headless=False, proxy=proxy_config)
-        elif browser_type == BrowserType.FIREFOX:
-            return self.playwright.firefox.launch(headless=False, proxy=proxy_config)
-        elif browser_type == BrowserType.WEBKIT:
-            return self.playwright.webkit.launch(headless=False, proxy=proxy_config)
-        elif browser_type == BrowserType.CAMOUFOX:
+
+        if browser_type == BrowserType.CAMOUFOX:
             if not Camoufox:
                 raise RuntimeError("Camoufox not installed")
             return Camoufox()
         else:
             raise ValueError(f"Unsupported browser type: {browser_type}")
 
-    def create_context(self, mode: SessionMode, browser_type: BrowserType = BrowserType.CHROMIUM,
-                       proxy: Optional[str] = None, profile_dir: Optional[str] = None):
+    def create_context(
+        self,
+        mode: SessionMode,
+        browser_type: BrowserType = BrowserType.CHROMIUM,
+        proxy: Optional[str] = None,
+        profile_dir: Optional[str] = None,
+    ):
         key = (browser_type, proxy or "default")
         with self.lock:
             browser = self.browser_pool.get(key)
@@ -128,7 +79,10 @@ class BrowserManager:
         # Create context
         if mode == SessionMode.PROFILE and profile_dir:
             if hasattr(browser, "launch_persistent_context"):
-                return browser.launch_persistent_context(user_data_dir=profile_dir), browser
+                return (
+                    browser.launch_persistent_context(user_data_dir=profile_dir),
+                    browser,
+                )
             else:
                 return browser.new_context(), browser
         else:
@@ -148,17 +102,17 @@ class BrowserManager:
             self.browser_pool.clear()
             self.playwright.stop()
 
+
 # ------------------------------
 # EXAMPLE USAGE
 # ------------------------------
 if __name__ == "__main__":
-    store = SessionStore(session_timeout=60*5)  # 5 minutes
+    store = SessionStore(session_timeout=60 * 5)  # 5 minutes
     manager = BrowserManager()
 
     # Create a user with a new Chromium browser context
     context, browser = manager.create_context(
-        mode=SessionMode.NEW_BROWSER,
-        browser_type=BrowserType.CHROMIUM
+        mode=SessionMode.NEW_BROWSER, browser_type=BrowserType.CHROMIUM
     )
     user_session = store.create_user("user1", context)
 

@@ -1,5 +1,5 @@
 from urllib.parse import urlparse
-from browser.helper.logging import configure_logging
+from browser.logging import configure_logging
 
 
 logger = configure_logging(name=__name__)
