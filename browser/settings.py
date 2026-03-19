@@ -49,3 +49,7 @@ class LogSettings:
 class HealthCheckSettings:
     router: str = "/health"
     router_tags: List[str] = ["Health-Check"]
+
+class BrowserSettings:
+    router: str = "/browser"
+    router_tags: List[str] = ["Browser"]

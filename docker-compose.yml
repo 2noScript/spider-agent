@@ -1,0 +1,15 @@
+version: '3.9'
+
+services:
+  w-resources:
+    image: 2noscript/spider-agent:latest
+    networks:
+      - local_net
+    env_file:
+      - .env
+    ports:
+      - "8000:80"
+
+networks:
+  local_net:
+    driver: bridge

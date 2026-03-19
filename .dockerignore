@@ -22,3 +22,6 @@ tests
 log_files
 scripts
 __mock__
+docs
+plugins
+test

@@ -1,10 +1,14 @@
-FROM node:20-slim
+
+FROM python:3.12-alpine
 
 # Pinned Camoufox version for reproducible builds
 # Update these when upgrading Camoufox
 ARG CAMOUFOX_VERSION=135.0.1
 ARG CAMOUFOX_RELEASE=beta.24
 ARG CAMOUFOX_URL=https://github.com/daijro/camoufox/releases/download/v${CAMOUFOX_VERSION}-${CAMOUFOX_RELEASE}/camoufox-${CAMOUFOX_VERSION}-${CAMOUFOX_RELEASE}-lin.x86_64.zip
+
+
+RUN pip install uv
 
 # Install dependencies for Camoufox (Firefox-based)
 RUN apt-get update && apt-get install -y \
@@ -46,15 +50,8 @@ RUN mkdir -p /root/.cache/camoufox \
 
 WORKDIR /app
 
-COPY package.json ./
-RUN npm install --production
+COPY . /app
 
-COPY server.js ./
-COPY lib/ ./lib/
+EXPOSE 80
 
-ENV NODE_ENV=production
-ENV CAMOFOX_PORT=3000
-
-EXPOSE 3000
-
-CMD ["sh", "-c", "node --max-old-space-size=${MAX_OLD_SPACE_SIZE:-128} server.js"]
+CMD ["uv", "run", "-m", "browser.run"]

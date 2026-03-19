@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from browser.api import health_check
+from browser.api import browser_router
 from browser.settings import HealthCheckSettings
 
 
@@ -16,6 +17,13 @@ tags_metadata = [
 # Health Check routers
 router.include_router(
     health_check.router,
+    prefix=HealthCheckSettings.router,
+    tags=HealthCheckSettings.router_tags,
+)
+
+
+router.include_router(
+    browser_router.router,
     prefix=HealthCheckSettings.router,
     tags=HealthCheckSettings.router_tags,
 )
