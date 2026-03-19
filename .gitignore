@@ -37,3 +37,4 @@ __pycache__/
 
 # .gitignore
 data/profiles/
+log_files

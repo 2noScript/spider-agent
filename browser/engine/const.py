@@ -1,5 +1,7 @@
 import re
 
+from browser.engine.enum import BrowserType
+
 ALLOWED_URL_SCHEMES = ["http:", "https:"]
 
 # Interactive roles to include - exclude combobox to avoid opening complex widgets
@@ -18,3 +20,5 @@ SKIP_PATTERNS = [
 ]
 
 BROWSER_IDLE_TIMEOUT_MS=300000
+
+SUPPORT_BROWSER=[BrowserType.CAMOUFOX]

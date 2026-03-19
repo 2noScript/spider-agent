@@ -52,4 +52,4 @@ class HealthCheckSettings:
 
 class BrowserSettings:
     router: str = "/browser"
-    router_tags: List[str] = ["Browser"]
+    router_tags: List[str] = ["Browser-Driver"]

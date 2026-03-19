@@ -21,7 +21,6 @@ class HealthCheckResponse(BaseModel):
     },
 )
 async def health_check():
-
     return HealthCheckResponse()
 
 

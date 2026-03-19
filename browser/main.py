@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from browser.middleware import RequestLoggingMiddleware
 from browser.settings import FastAPISettings
 from browser.api.router import router as api_router, tags_metadata
 
@@ -17,5 +18,5 @@ app = FastAPI(
     debug=FastAPISettings.debug,
     # lifespan=lifespan,
 )
-
+app.add_middleware(RequestLoggingMiddleware)
 app.include_router(api_router, prefix="/api")

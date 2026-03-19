@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from browser.api import health_check
 from browser.api import browser_router
-from browser.settings import HealthCheckSettings
+from browser.settings import BrowserSettings, HealthCheckSettings
 
 
 router = APIRouter()
@@ -10,7 +10,9 @@ router = APIRouter()
 
 
 tags_metadata = [
-    {"name": "Health-Check", "description": "**Server Health Check**"}
+    {"name": "Health-Check", "description": "**Server Health Check**"},
+    {"name": "Browser-Driver", "description": "**Browser-Driver**"}
+
 ]
 
 
@@ -24,6 +26,6 @@ router.include_router(
 
 router.include_router(
     browser_router.router,
-    prefix=HealthCheckSettings.router,
-    tags=HealthCheckSettings.router_tags,
+    prefix=BrowserSettings.router,
+    tags=BrowserSettings.router_tags,
 )
