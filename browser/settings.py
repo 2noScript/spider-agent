@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 # Load .env file
 load_dotenv()
 
+
 class FastAPISettings:
     # Project name
     title: str = "SPIDER AGENT"
@@ -22,6 +23,7 @@ class FastAPISettings:
     ip: str = "0.0.0.0"
     # FastAPI service port
     port: int = 80
+
 
 class LogSettings:
     # Log level
@@ -45,11 +47,16 @@ class LogSettings:
     backup_count: int = 7
 
 
-
 class HealthCheckSettings:
     router: str = "/health"
     router_tags: List[str] = ["Health-Check"]
 
+
 class BrowserSettings:
     router: str = "/browser"
     router_tags: List[str] = ["Browser-Driver"]
+
+
+class AiHelperSettings:
+    google_api_key: str = os.getenv("GOOGLE_API_KEY")
+    open_api_key: str = os.getenv("OPENAI_API_KEY")

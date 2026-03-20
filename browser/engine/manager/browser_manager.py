@@ -1,11 +1,17 @@
 from playwright.sync_api import Browser
 from typing import Dict, Optional
+from browser.engine.enum import BrowserType
 from browser.engine.manager.user_manager import SessionManager
+
+
 
 
 class BrowserManager:
     def __init__(self):
-        self.ins: Dict[str, Optional[Browser]] = {}
+        # 1.(REUSE)
+        self.shared_browsers: Dict[BrowserType, Browser] = {}
+        # 2. (NEW_BROWSER + PROFILE)
+        self.user_browsers: Dict[str, Browser] = {}
         self.sessions: Dict[str, Optional[SessionManager]] = {}
 
     async def ensure_browser():

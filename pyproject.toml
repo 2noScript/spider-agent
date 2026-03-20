@@ -8,6 +8,8 @@ dependencies = [
     "camoufox[geoip]>=0.4.11",
     "concurrent-log-handler>=0.9.29",
     "fastapi>=0.135.1",
+    "google-genai>=1.68.0",
+    "openai>=2.29.0",
     "python-dotenv>=1.2.2",
     "uvicorn>=0.42.0",
 ]
