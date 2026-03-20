@@ -112,6 +112,35 @@ class AskChatgpt:
         ⚠️ **Output only the integer. Nothing else. No units, no words.**
         """
 
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": prompt},
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/png;base64,{base64_image}"
+                            },
+                        }
+                    ],
+                },
+            ],
+            temperature=0,
+            max_tokens=50,
+        )
+        content = response.choices[0].message.content.strip()
+        match = re.search(r"-?\d+", content)
+        if match:
+            return match.group(0)  # Return the first found integer
+        else:
+            print(
+                f"Warning: OpenAI correction response did not contain an integer: '{content}'."
+            )
+            return None  # Signal failure
+
     def puzzle_correction_direction(self, image_path: str, model: str = "gpt-4o"):
         base64_image = image_to_base64(image_path)
         prompt = """
@@ -252,11 +281,20 @@ class AskChatgpt:
         response = client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "user", "content": [
-                    {"type": "text", "text": prompt},
-                    {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{base64_image}"}}
-                ]}
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/png;base64,{base64_image}"
+                            },
+                        },
+                    ],
+                }
             ],
-            temperature=0, max_tokens=10
+            temperature=0,
+            max_tokens=10,
         )
         return response.choices[0].message.content.strip().lower()
