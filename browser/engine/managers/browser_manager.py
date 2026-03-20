@@ -1,17 +1,17 @@
 import asyncio
-from playwright.sync_api import Browser, BrowserContext
-from typing import Dict, Optional, Union
-from browser.engine.enum import BrowserType
-from browser.engine.manager.user_manager import UserManager
 import os
 import signal
+from typing import Dict, Optional, Union
+
+from playwright.sync_api import Browser, BrowserContext
+
+from browser.engine.core.enum import BrowserType
+from browser.engine.managers.user_manager import UserManager
 
 
 class BrowserManager:
     def __init__(self):
-        # 1.(REUSE)
         self.shared_browsers: Dict[BrowserType, Browser] = {}
-        # 2. (NEW_BROWSER + PROFILE)
         self.user_browsers: Dict[str, Browser] = {}
         self.users: Dict[str, Optional[UserManager]] = {}
 
@@ -27,14 +27,9 @@ class BrowserManager:
         pass
 
     async def safe_browser_close(target: Union[Browser, BrowserContext]):
-        """
-        target: browser or context (async Playwright)
-        timeout: number of seconds to wait
-        """
         try:
             await asyncio.wait_for(target.close(), timeout=5)
             print("[safe_close] Closed gracefully")
-
         except asyncio.TimeoutError:
             print("[safe_close] Timeout → force kill")
             try:
@@ -46,12 +41,11 @@ class BrowserManager:
                     if browser and browser.process:
                         pid = browser.process.pid
                 os.kill(pid, signal.SIGKILL)
-
             except Exception as e:
                 print("[safe_close] Kill failed:", e)
-
         except Exception as e:
             print("[safe_close] Close error:", e)
 
 
 browser_manager = BrowserManager()
+

@@ -1,12 +1,9 @@
 import os
 
+
 def parse_netscape_cookie_file(text: str):
-    """
-    Parse Netscape-format cookie file into structured cookie objects.
-    """
     cookies = []
 
-    # Remove BOM
     if text.startswith("\ufeff"):
         text = text[1:]
 
@@ -36,15 +33,17 @@ def parse_netscape_cookie_file(text: str):
         name = parts[5]
         value = "\t".join(parts[6:])
 
-        cookies.append({
-            "name": name,
-            "value": value,
-            "domain": domain,
-            "path": cookie_path,
-            "expires": expires,
-            "httpOnly": http_only,
-            "secure": secure
-        })
+        cookies.append(
+            {
+                "name": name,
+                "value": value,
+                "domain": domain,
+                "path": cookie_path,
+                "expires": expires,
+                "httpOnly": http_only,
+                "secure": secure,
+            }
+        )
 
     return cookies
 
@@ -53,24 +52,17 @@ async def read_cookie_file(
     cookies_dir: str,
     cookies_path: str,
     domain_suffix: str = None,
-    max_bytes: int = 5 * 1024 * 1024
+    max_bytes: int = 5 * 1024 * 1024,
 ):
-    """
-    Read and parse cookies from a Netscape cookie file.
-    """
-
     resolved = os.path.abspath(os.path.join(cookies_dir, cookies_path))
 
-    # Security: ensure path is inside cookies_dir
     if not resolved.startswith(os.path.abspath(cookies_dir) + os.sep):
         raise ValueError("cookies_path must be a relative path within the cookies directory")
 
-    # Check file size
     stat = os.stat(resolved)
     if stat.st_size > max_bytes:
         raise ValueError("Cookie file too large (max 5MB)")
 
-    # Read file
     with open(resolved, "r", encoding="utf-8") as f:
         text = f.read()
 
@@ -79,7 +71,6 @@ async def read_cookie_file(
     if domain_suffix:
         cookies = [c for c in cookies if c["domain"].endswith(domain_suffix)]
 
-    # Normalize output (giống JS)
     return [
         {
             "name": c["name"],
@@ -92,3 +83,4 @@ async def read_cookie_file(
         }
         for c in cookies
     ]
+

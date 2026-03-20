@@ -15,7 +15,6 @@ class TabLock:
             "timer": None,
         }
 
-        # timeout handler
         def on_timeout():
             if not future.done():
                 try:
@@ -57,4 +56,6 @@ class TabLock:
 
         self.queue.clear()
 
+
 tab_locks = {}
+

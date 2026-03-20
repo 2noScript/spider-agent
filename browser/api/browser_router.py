@@ -3,7 +3,7 @@ from typing import Union
 from fastapi import APIRouter
 
 from browser.api.model import ErrorResponseModel, ResponseModel
-from browser.engine.const import SUPPORT_BROWSER
+from browser.engine.core.const import SUPPORT_BROWSER
 from browser.logging import configure_logging
 
 

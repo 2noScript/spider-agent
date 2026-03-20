@@ -1,18 +1,14 @@
+import asyncio
+import base64
 import os
 import re
-import uuid
-import base64
-import asyncio
 import tempfile
+import uuid
 from pathlib import Path
 
 MAX_DOWNLOAD_RECORDS_PER_TAB = 20
 MAX_DOWNLOAD_INLINE_BYTES = 20 * 1024 * 1024
 
-
-# -----------------------
-# Utils
-# -----------------------
 
 def sanitize_filename(value: str) -> str:
     name = str(value or "download.bin")
@@ -22,11 +18,16 @@ def sanitize_filename(value: str) -> str:
 
 def guess_mime_type_from_name(value: str) -> str:
     v = str(value or "").lower()
-    if v.endswith(".png"): return "image/png"
-    if v.endswith(".jpg") or v.endswith(".jpeg"): return "image/jpeg"
-    if v.endswith(".webp"): return "image/webp"
-    if v.endswith(".gif"): return "image/gif"
-    if v.endswith(".svg"): return "image/svg+xml"
+    if v.endswith(".png"):
+        return "image/png"
+    if v.endswith(".jpg") or v.endswith(".jpeg"):
+        return "image/jpeg"
+    if v.endswith(".webp"):
+        return "image/webp"
+    if v.endswith(".gif"):
+        return "image/gif"
+    if v.endswith(".svg"):
+        return "image/svg+xml"
     return "application/octet-stream"
 
 
@@ -61,12 +62,7 @@ async def clear_session_downloads(session):
     await asyncio.gather(*tasks)
 
 
-# -----------------------
-# Download listener
-# -----------------------
-
 def attach_download_listener(tab_state, tab_id, log):
-
     if tab_state.get("downloadListenerAttached"):
         return
 
@@ -74,14 +70,9 @@ def attach_download_listener(tab_state, tab_id, log):
 
     async def handle_download(download):
         download_id = str(uuid.uuid4())
-        suggested = sanitize_filename(
-            download.suggested_filename or f"download-{download_id}.bin"
-        )
+        suggested = sanitize_filename(download.suggested_filename or f"download-{download_id}.bin")
 
-        file_path = os.path.join(
-            tempfile.gettempdir(),
-            f"camofox-download-{download_id}-{suggested}"
-        )
+        file_path = os.path.join(tempfile.gettempdir(), f"camofox-download-{download_id}-{suggested}")
 
         failure = None
         bytes_size = None
@@ -108,35 +99,37 @@ def attach_download_listener(tab_state, tab_id, log):
 
         mime_type = guess_mime_type_from_name(suggested)
 
-        tab_state.setdefault("downloads", []).append({
-            "id": download_id,
-            "tabId": tab_id,
-            "url": url,
-            "suggestedFilename": suggested,
-            "mimeType": mime_type,
-            "bytes": bytes_size,
-            "createdAt": asyncio.get_event_loop().time(),
-            "filePath": None if failure else file_path,
-            "failure": failure,
-        })
+        tab_state.setdefault("downloads", []).append(
+            {
+                "id": download_id,
+                "tabId": tab_id,
+                "url": url,
+                "suggestedFilename": suggested,
+                "mimeType": mime_type,
+                "bytes": bytes_size,
+                "createdAt": asyncio.get_event_loop().time(),
+                "filePath": None if failure else file_path,
+                "failure": failure,
+            }
+        )
 
         await trim_tab_downloads(tab_state)
 
-        log("info", "download captured", {
-            "tabId": tab_id,
-            "downloadId": download_id,
-            "suggestedFilename": suggested,
-            "mimeType": mime_type,
-            "bytes": bytes_size,
-            "failure": failure,
-        })
+        log(
+            "info",
+            "download captured",
+            {
+                "tabId": tab_id,
+                "downloadId": download_id,
+                "suggestedFilename": suggested,
+                "mimeType": mime_type,
+                "bytes": bytes_size,
+                "failure": failure,
+            },
+        )
 
     tab_state["page"].on("download", lambda d: asyncio.create_task(handle_download(d)))
 
-
-# -----------------------
-# Get download list
-# -----------------------
 
 async def get_downloads_list(tab_state, include_data=False, max_bytes=MAX_DOWNLOAD_INLINE_BYTES):
     snapshot = list(tab_state.get("downloads", []))
@@ -169,12 +162,7 @@ async def get_downloads_list(tab_state, include_data=False, max_bytes=MAX_DOWNLO
     return results
 
 
-# -----------------------
-# Extract images (Playwright)
-# -----------------------
-
 async def extract_page_images(page, include_data=False, max_bytes=MAX_DOWNLOAD_INLINE_BYTES, limit=8):
-
     return await page.evaluate(
         """async ({ includeData, maxBytes, limit }) => {
 
@@ -228,5 +216,6 @@ async def extract_page_images(page, include_data=False, max_bytes=MAX_DOWNLOAD_I
 
         return results;
         }""",
-        {"includeData": include_data, "maxBytes": max_bytes, "limit": limit}
+        {"includeData": include_data, "maxBytes": max_bytes, "limit": limit},
     )
+

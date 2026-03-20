@@ -1,10 +1,9 @@
 import re
 
-from browser.engine.enum import BrowserType
+from browser.engine.core.enum import BrowserType
 
 ALLOWED_URL_SCHEMES = ["http:", "https:"]
 
-# Interactive roles to include - exclude combobox to avoid opening complex widgets
 INTERACTIVE_ROLES = [
     "button",
     "link",
@@ -17,10 +16,8 @@ INTERACTIVE_ROLES = [
     "slider",
     "spinbutton",
     "switch",
-    # "combobox" excluded
 ]
 
-# Patterns to skip (date pickers, calendar widgets)
 SKIP_PATTERNS = [
     re.compile(r"date", re.I),
     re.compile(r"calendar", re.I),
@@ -28,14 +25,13 @@ SKIP_PATTERNS = [
     re.compile(r"datepicker", re.I),
 ]
 
-
 SUPPORT_BROWSER = [BrowserType.CAMOUFOX]
 
 PROFILES_PATH = {
-    [BrowserType.CAMOUFOX]: f"profile/{BrowserType.CAMOUFOX}",
-    [BrowserType.CLOAK]: f"profile/{BrowserType.CLOAK}",
+    BrowserType.CAMOUFOX: f"profile/{BrowserType.CAMOUFOX}",
+    BrowserType.CLOAK: f"profile/{BrowserType.CLOAK}",
 }
 
-# unit seconds
 BROWSER_IDLE_TIMEOUT_S = 300
 PAGE_CLOSE_TIMEOUT_S = 5
+

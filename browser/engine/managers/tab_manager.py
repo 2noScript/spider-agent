@@ -10,3 +10,4 @@ class TabManager:
         self.visited_urls = visited_urls
         self.downloads = []
         self.tool_calls = 0
+
