@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from typing import List
 from dotenv import load_dotenv
 
@@ -60,3 +61,19 @@ class BrowserSettings:
 class AiHelperSettings:
     google_api_key: str = os.getenv("GOOGLE_API_KEY")
     open_api_key: str = os.getenv("OPENAI_API_KEY")
+
+
+class EngineSettings:
+    cookies_dir = os.getenv("CAMOFOX_COOKIES_DIR") or str(
+        Path.home() / ".camofox" / "cookies"
+    )
+    handler_timeout_s = int(os.getenv("HANDLER_TIMEOUT_S", "30"))
+    max_concurrent_per_user = int(os.getenv("MAX_CONCURRENT_PER_USER", "3"))
+    session_timeout_s = int(os.getenv("SESSION_TIMEOUT_S", "600"))
+    tab_inactivity_s = int(os.getenv("TAB_INACTIVITY_S", "300"))
+    max_sessions = int(os.getenv("MAX_SESSIONS", "50"))
+    max_tabs_per_session = int(os.getenv("MAX_TABS_PER_SESSION", "10"))
+    max_tabs_global = int(os.getenv("MAX_TABS_GLOBAL", "10"))
+    navigate_timeout_s = int(os.getenv("NAVIGATE_TIMEOUT_S", "25"))
+    buildrefs_timeout_s = int(os.getenv("BUILDREFS_TIMEOUT_S", "12"))
+    browser_idle_timeout_s = int(os.getenv("BROWSER_IDLE_TIMEOUT_S", "300"))

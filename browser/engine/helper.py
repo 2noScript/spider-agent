@@ -1,12 +1,9 @@
 import sys
 from browser.logging import configure_logging
+import asyncio
 
 
 logger = configure_logging(name=__name__)
-
-sessions = {}
-browser = None
-
 
 
 def get_host_os():
@@ -37,3 +34,13 @@ def build_proxy_config(config):
         "username": username,
         "password": password,
     }
+
+
+
+
+
+async def with_timeout(coro, ms: int, label: str):
+    try:
+        return await asyncio.wait_for(coro, timeout=ms / 1000)
+    except asyncio.TimeoutError:
+        raise Exception(f"{label} timed out after {ms}ms")

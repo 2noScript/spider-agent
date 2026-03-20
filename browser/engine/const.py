@@ -28,7 +28,6 @@ SKIP_PATTERNS = [
     re.compile(r"datepicker", re.I),
 ]
 
-BROWSER_IDLE_TIMEOUT_MS = 300000
 
 SUPPORT_BROWSER = [BrowserType.CAMOUFOX]
 
@@ -36,3 +35,7 @@ PROFILES_PATH = {
     [BrowserType.CAMOUFOX]: f"profile/{BrowserType.CAMOUFOX}",
     [BrowserType.CLOAK]: f"profile/{BrowserType.CLOAK}",
 }
+
+# unit seconds
+BROWSER_IDLE_TIMEOUT_S = 300
+PAGE_CLOSE_TIMEOUT_S = 5
